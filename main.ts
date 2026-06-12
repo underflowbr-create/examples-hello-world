@@ -1,7 +1,9 @@
 Deno.serve(async (req) => {
-  const ip = req.headers.get("cf-connecting-ip")
-           || req.headers.get("x-forwarded-for")
-           || "desconhecido"
+  // Pega todos os headers recebidos
+  const allHeaders: Record<string, string> = {}
+  req.headers.forEach((value, key) => {
+    allHeaders[key] = value
+  })
 
   const body = await req.text()
 
@@ -9,7 +11,7 @@ Deno.serve(async (req) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Original-IP": ip,
+      "X-All-Headers": JSON.stringify(allHeaders), // todos os headers que chegaram
     },
     body: body
   })
